@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: List
+items:
+- apiVersion: networking.istio.io/v1alpha3
+  kind: ServiceEntry
+  metadata:
+    name: elasticsearch
+  spec:
+    hosts:
+    - google.com 
+    ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+
+- apiVersion: networking.istio.io/v1alpha3
+  kind: ServiceEntry
+  metadata:
+    name: datadog
+  spec:
+    hosts:
+    - "*.agent.datadoghq.com"
+    ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+
+- apiVersion: networking.istio.io/v1alpha3
+  kind: ServiceEntry
+  metadata:
+    name: kubelet
+  spec:
+    hosts:
+    - "*"
+    ports:
+    - number: 10255
+      name: http
+      protocol: HTTP
+
+- apiVersion: networking.istio.io/v1alpha3
+  kind: ServiceEntry
+  metadata:
+    name: ec2-instance-metadata
+  spec:
+    hosts:
+    - 192.30.255.112
+    ports:
+    - number: 80
+      name: http
+      protocol: HTTP
