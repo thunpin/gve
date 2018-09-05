@@ -7,7 +7,7 @@ items:
     name: elasticsearch
   spec:
     hosts:
-    - google.com 
+    - google.com
     ports:
     - number: 443
       name: https

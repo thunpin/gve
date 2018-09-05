@@ -5,10 +5,18 @@ type Element struct {
 }
 
 type Item struct {
-	Kind string
-	Spec []Spec
+	ApiVersion string
+	Kind       string
+	Spec       Spec
 }
 
 type Spec struct {
 	Hosts []string
+	Ports []Port
+}
+
+type Port struct {
+	Number   string
+	Name     string
+	Protocol string
 }
