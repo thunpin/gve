@@ -43,8 +43,8 @@ items:
     name: ec2-instance-metadata
   spec:
     hosts:
-    - 192.30.255.112
+    - 185.199.110.153
     ports:
     - number: 80
       name: http
-      protocol: HTTP
+      protocol: TCP

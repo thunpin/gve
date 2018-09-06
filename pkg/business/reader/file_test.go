@@ -1,6 +1,7 @@
 package reader
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
@@ -13,7 +14,8 @@ func TestReturnErrorIfThePathIsInvalid(t *testing.T) {
 }
 
 func TestReturnTheDataFileWhenThePathIsValid(t *testing.T) {
-	data, err := FromFile(dir + "../../github.com/thunpin/gve/istio.yaml")
+	gopath := os.Getenv("GOPATH")
+	data, err := FromFile(gopath + "/src/github.com/thunpin/gve/istio.yaml")
 	if err != nil {
 		t.Fail()
 	}

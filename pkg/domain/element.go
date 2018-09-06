@@ -17,6 +17,5 @@ type Spec struct {
 
 type Port struct {
 	Number   string
-	Name     string
 	Protocol string
 }

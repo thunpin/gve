@@ -1,6 +1,11 @@
 package network
 
 import (
+	"errors"
+	"fmt"
+	"log"
+	"net"
+	"net/http"
 	"strings"
 
 	"github.com/thunpin/gve/pkg/domain"
@@ -8,36 +13,68 @@ import (
 
 const KindTypeToTestNetwork = "serviceentry"
 
-func VerifyEndpoint(element domain.Element) ([]Result, error) {
-	results := make([]Result, 0)
+func VerifyEndpoint(element domain.Element) error {
 	for _, item := range element.Items {
 		if strings.ToLower(item.Kind) == KindTypeToTestNetwork {
-			_, err := verifySpec(item.Spec)
+			err := verifySpec(item.Spec)
 			if err != nil {
-				return nil, err
+				return err
 			}
 		}
 	}
-	return results, nil
+	return nil
 }
 
-func verifySpec(spec domain.Spec) ([]Result, error) {
-	results := make([]Result, 0)
+func verifySpec(spec domain.Spec) error {
 	for _, host := range spec.Hosts {
 		if strings.Contains(host, "*") {
-			results = append(results, Warning{host})
+			log.Println("[WARNING] Skipping:" + host)
 		} else {
-			returnedResults, err := verifyHost(host, spec.Ports)
+			err := verifyHost(host, spec.Ports)
 			if err != nil {
-				return nil, err
+				return err
 			}
-			results = append(results, returnedResults...)
 		}
 	}
 
-	return results, nil
+	return nil
 }
 
-func verifyHost(host string, ports []domain.Port) ([]Result, error) {
-	return nil, nil
+func verifyHost(host string, ports []domain.Port) error {
+	for _, port := range ports {
+		var err error
+		switch strings.ToLower(port.Protocol) {
+		case "http":
+			err = httpConn("http://" + host + ":" + port.Number)
+		case "https":
+			err = httpConn("https://" + host + ":" + port.Number)
+		case "tcp":
+			err = tcpConn(host, port.Number)
+		default:
+			return errors.New(fmt.Sprintf("invalid port protocol: %s of host %s. Only accept HTTP/HTTPS/TCP", port, host))
+		}
+
+		addressToLog := port.Protocol + ":" + host + ":" + port.Number
+		if err != nil {
+			fmt.Println(err)
+			return errors.New(addressToLog)
+		}
+	}
+	return nil
+}
+
+func httpConn(address string) error {
+	data, err := http.Get(address)
+	if err != nil {
+		return err
+	}
+	if (data.StatusCode / 100) == 5 {
+		return errors.New(address)
+	}
+	return nil
+}
+
+func tcpConn(host string, port string) error {
+	_, err := net.Dial("tcp", host+":"+port)
+	return err
 }

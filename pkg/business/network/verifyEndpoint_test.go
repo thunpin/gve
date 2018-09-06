@@ -6,9 +6,34 @@ import (
 	"github.com/thunpin/gve/pkg/domain"
 )
 
-func TestMustPrintWarningWhenTheHostContainsAsterisk(t *testing.T) {
+func TestMustReturnWarningWhenTheHostContainsAsterisk(t *testing.T) {
 	element := testCreateEmptyElement()
 	element.Items[0].Spec.Hosts = append(element.Items[0].Spec.Hosts, "*.google.com")
+	err := VerifyEndpoint(element)
+	if err != nil {
+		t.Fail()
+	}
+}
+
+func TestMustReturnErrorWhenItemHostIsInvalid(t *testing.T) {
+	element := testCreateEmptyElement()
+	element.Items[0].Spec.Hosts = append(element.Items[0].Spec.Hosts, "oogle.com")
+	element.Items[0].Spec.Hosts = append(element.Items[0].Spec.Hosts, "google.com")
+	element.Items[0].Spec.Ports = append(element.Items[0].Spec.Ports, domain.Port{"80", "HTTP"})
+	err := VerifyEndpoint(element)
+	if err == nil {
+		t.Fail()
+	}
+}
+
+func TestMustReturnValidResultsWhenTheElementIsValid(t *testing.T) {
+	element := testCreateEmptyElement()
+	element.Items[0].Spec.Hosts = append(element.Items[0].Spec.Hosts, "google.com")
+	element.Items[0].Spec.Ports = append(element.Items[0].Spec.Ports, domain.Port{"443", "HTTPS"})
+	err := VerifyEndpoint(element)
+	if err != nil {
+		t.Fail()
+	}
 }
 
 func testCreateEmptyElement() domain.Element {
